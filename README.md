@@ -1,3 +1,7 @@
+# DUST
+Dust is a open-world multiplayer zombie survival game. where you can create clans
+and survive in the vast and dangerous open world!
+
 # Tree3D
 Plugin for procedural generation of 3D trees of varying complexity.
 
