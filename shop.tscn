@@ -1,0 +1,77 @@
+[gd_scene load_steps=7 format=3 uid="uid://b41jfc61tyy3q"]
+
+[ext_resource type="PackedScene" uid="uid://bktakijtcm60g" path="res://addons/quaternius simple nature pack/materials/gun shop.gltf" id="1_xft0h"]
+[ext_resource type="Script" path="res://ShopMenu.gd" id="2_06c2r"]
+[ext_resource type="FontFile" uid="uid://crrktsmuc57tc" path="res://addons/quaternius simple nature pack/gltf/Signwood-Regular.ttf" id="2_jaa4g"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_4rq57"]
+sky_top_color = Color(0, 0, 0, 1)
+sky_horizon_color = Color(0.5, 0.5, 0.5, 1)
+sky_energy_multiplier = 0.0
+ground_bottom_color = Color(0, 0, 0, 1)
+ground_horizon_color = Color(0.5, 0.5, 0.5, 1)
+
+[sub_resource type="Sky" id="Sky_iqsbe"]
+sky_material = SubResource("ProceduralSkyMaterial_4rq57")
+
+[sub_resource type="Environment" id="Environment_6eobc"]
+background_mode = 1
+sky = SubResource("Sky_iqsbe")
+tonemap_mode = 2
+fog_enabled = true
+fog_light_energy = 0.05
+fog_sun_scatter = 0.8
+fog_density = 0.3609
+fog_height = -27.4
+fog_height_density = 16.0
+
+[node name="Node3D" type="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 5, -2)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_6eobc")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, -4, 2)
+current = true
+
+[node name="blockbench_export" parent="." instance=ExtResource("1_xft0h")]
+transform = Transform3D(-0.999799, 0, 0.0200352, 0, 1, 0, -0.0200352, 0, -0.999799, 1.09004, -5, -1.22643)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.884508, 0.466526, 0, -0.466526, -0.884508, 0, 0, 0, 1, 17.6028, 13.1422, 27.8462)
+light_energy = 0.5
+light_indirect_energy = 16.0
+light_volumetric_fog_energy = 5.513
+light_angular_distance = 14.62
+shadow_enabled = true
+sky_mode = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+offset_right = 395.0
+offset_bottom = 634.0
+script = ExtResource("2_06c2r")
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_jaa4g")
+theme_override_font_sizes/font_size = 93
+text = "SHOP"
+
+[node name="Button" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Buy AK47 - 50 Credits"
+
+[node name="Button2" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Buy Glock 19 - 20 Credits"
+
+[node name="Button3" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Buy RPG - 180 Credits"
+
+[node name="Button4" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Close Shop"
+
+[connection signal="pressed" from="VBoxContainer/Button4" to="VBoxContainer" method="_on_button_4_pressed"]

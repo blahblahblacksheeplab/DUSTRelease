@@ -1,0 +1,212 @@
+[gd_scene load_steps=19 format=3 uid="uid://ceh71ofumyh1d"]
+
+[ext_resource type="FontFile" uid="uid://crrktsmuc57tc" path="res://addons/quaternius simple nature pack/gltf/Signwood-Regular.ttf" id="2_lg36v"]
+[ext_resource type="Script" path="res://addons/zylann.hterrain/hterrain.gd" id="3_er8e0"]
+[ext_resource type="Resource" path="res://termain/data.hterrain" id="4_rmcqj"]
+[ext_resource type="Script" path="res://addons/zylann.hterrain/hterrain_texture_set.gd" id="5_js41k"]
+[ext_resource type="Texture2D" uid="uid://g20kqf4x5yk8" path="res://textures/main_menu_slot0_albedo_bump.png" id="6_gdxvv"]
+[ext_resource type="Texture2D" uid="uid://b4awih6diajfp" path="res://textures/main_menu_slot0_normal_roughness.png" id="7_cq7rc"]
+[ext_resource type="Script" path="res://addons/zylann.hterrain/hterrain_detail_layer.gd" id="8_ir848"]
+[ext_resource type="Script" path="res://v_box_container.gd" id="9_b24a2"]
+[ext_resource type="Texture2D" uid="uid://deh8waecixuvt" path="res://addons/quaternius simple nature pack/gltf/New Project (32).png" id="9_mr405"]
+[ext_resource type="Texture2D" uid="uid://6jmdwj3vn6m0" path="res://addons/zylann.hterrain/tools/icons/icon_detail_layer_node.svg" id="10_6uvii"]
+[ext_resource type="PackedScene" uid="uid://c5gpthfx3rge8" path="res://addons/quaternius simple nature pack/gltf/Watch Tower.gltf" id="11_7oio5"]
+
+[sub_resource type="Shader" id="Shader_rvsuh"]
+code = "shader_type canvas_item;
+
+uniform sampler2D day_time_colors : hint_default_white;
+
+uniform float twilight_duration_factor = 1.0f;
+
+uniform float current_time : hint_range(0, 1) = 0.0f;
+
+uniform float sunrise_time : hint_range(0, 1) = 0.1f;
+uniform float sunset_time : hint_range(0, 1) = 0.9f;
+
+uniform float twilight_duration : hint_range(0, 1) = 0.2f;
+
+uniform float shader_opacity : hint_range(0, 1) = 1.0f;
+
+uniform sampler2D SCREEN_TEXTURE : hint_screen_texture, filter_linear_mipmap;
+
+float get_time_color_pct() {
+	float scaled_twilight_duration = twilight_duration * twilight_duration_factor;
+	
+	if (current_time < sunrise_time) {
+		return 0.0f; // (Morning) night
+	}
+	else if (current_time < sunrise_time + scaled_twilight_duration) {
+		// Divide by two as only the first half of the texture is used
+		return (current_time - sunrise_time) / (2.0f * scaled_twilight_duration); // Sunrise fade
+	}
+	else if (current_time < sunset_time - scaled_twilight_duration) {
+		return 0.5f; // Daytime
+	}
+	else if (current_time < sunset_time) {
+		// Divide by two as only the second half of the texture is used
+		return 0.5f + (current_time - (sunset_time - scaled_twilight_duration)) / (2.0f * scaled_twilight_duration); // Sunset fade
+	}
+	return 1.0f; // Night (evening)
+}
+
+void fragment() {
+	vec4 screen_color = texture(SCREEN_TEXTURE, SCREEN_UV);
+	float x_pos = get_time_color_pct();
+	vec4 sky_color = texture(day_time_colors, vec2(x_pos, 0.0f));
+	sky_color.a = shader_opacity;
+	COLOR = screen_color * sky_color;
+}
+"
+
+[sub_resource type="Resource" id="Resource_8g6n0"]
+script = ExtResource("5_js41k")
+mode = 0
+textures = [[ExtResource("6_gdxvv")], [ExtResource("7_cq7rc")]]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_mpxx6"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_h65qj"]
+sky_material = SubResource("ProceduralSkyMaterial_mpxx6")
+
+[sub_resource type="Environment" id="Environment_wi6bb"]
+background_mode = 2
+sky = SubResource("Sky_h65qj")
+ambient_light_source = 3
+tonemap_mode = 2
+glow_enabled = true
+glow_normalized = true
+glow_intensity = 4.55
+glow_strength = 1.3
+glow_bloom = 0.05
+glow_hdr_scale = 2.55
+glow_hdr_luminance_cap = 6.55
+glow_map_strength = 1.0
+fog_enabled = true
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_lb2r3"]
+exposure_multiplier = 1.61
+dof_blur_far_enabled = true
+dof_blur_far_distance = 4.15
+dof_blur_far_transition = 352.16
+
+[sub_resource type="Compositor" id="Compositor_irm0y"]
+
+[node name="Node3D" type="Node3D"]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+light_color = Color(0.886336, 0.907146, 0.828918, 1)
+light_energy = 1.821
+light_indirect_energy = 4.829
+light_volumetric_fog_energy = 5.513
+light_angular_distance = 2.55
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(0.990063, 0, -0.140625, 0, 1, 0, 0.140625, 0, 0.990063, 32.6149, 84.2912, -87.3525)
+current = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -266.5
+offset_top = -94.0
+offset_right = 266.5
+offset_bottom = 94.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+script = ExtResource("9_b24a2")
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_lg36v")
+theme_override_font_sizes/font_size = 96
+text = "DUST "
+horizontal_alignment = 1
+
+[node name="Button" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "New Game"
+
+[node name="Button4" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "Load Game"
+
+[node name="Button5" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "SHOP"
+
+[node name="Button2" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "Servers"
+
+[node name="Button3" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "Exit"
+
+[node name="Label2" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_lg36v")
+theme_override_font_sizes/font_size = 26
+text = "Game created by kalabthygoat, orangeotter56, cutgoose, Napo, Egor(ukr), HOIDWAS, virtualkiller18, username42, eggdog"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="HTerrain" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28.9046, 77.7969, 0)
+script = ExtResource("3_er8e0")
+ambient_wind = 0.109
+centered = true
+_terrain_data = ExtResource("4_rmcqj")
+chunk_size = 32
+collision_enabled = true
+collision_layer = 1
+collision_mask = 1
+shader_type = "Classic4Lite"
+custom_shader = SubResource("Shader_rvsuh")
+custom_globalmap_shader = SubResource("Shader_rvsuh")
+texture_set = SubResource("Resource_8g6n0")
+render_layers = 1
+cast_shadow = 1
+shader_params/u_ground_uv_scale = 20
+shader_params/u_depth_blending = true
+shader_params/u_triplanar = null
+shader_params/u_tile_reduction = null
+
+[node name="HTerrainDetailLayer" type="Node3D" parent="HTerrain"]
+script = ExtResource("8_ir848")
+texture = ExtResource("9_mr405")
+shader_params/u_globalmap_tint_bottom = null
+shader_params/u_globalmap_tint_top = null
+shader_params/u_bottom_ao = null
+shader_params/u_instance_scale = null
+shader_params/u_roughness = null
+metadata/_editor_icon = ExtResource("10_6uvii")
+
+[node name="blockbench_export" parent="." instance=ExtResource("11_7oio5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.2366, 81.1839, -90.9228)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_wi6bb")
+camera_attributes = SubResource("CameraAttributesPractical_lb2r3")
+compositor = SubResource("Compositor_irm0y")
+
+[connection signal="pressed" from="VBoxContainer/Button" to="VBoxContainer" method="_on_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/Button5" to="VBoxContainer" method="_on_shop_pressed"]
+[connection signal="pressed" from="VBoxContainer/Button3" to="VBoxContainer" method="_on_button_3_pressed"]
